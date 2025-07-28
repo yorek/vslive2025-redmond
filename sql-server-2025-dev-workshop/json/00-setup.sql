@@ -1,8 +1,3 @@
-/*
-create database vslive2025_redmond
-go
-*/
-
 use vslive2025_redmond
 go
 
