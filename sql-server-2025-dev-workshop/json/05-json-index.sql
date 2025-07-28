@@ -30,7 +30,50 @@ go
 create json index ixj on dbo.test_json_index(document)
 go
 
+dbcc freeproccache
+go
+
+-- Simulate a bigger table
+update statistics test_json_index with rowcount = 10000000;
+go
+
 set statistics io on
+go
+
+select * from dbo.test_json_index
+where cast(json_value(document, '$.id') as int) = 100;
+go
+
+select * from dbo.test_json_index
+where json_value(document, '$.id' returning int) = 100;
+go
+
+select * from dbo.test_json_index
+where cast(json_value(document, '$.id') as int) between 100 and 125;
+go
+
+select * from dbo.test_json_index
+where json_value(document, '$.somedata1' returning varchar(64)) LIKE '2A94%';
+go
+
+-- Wildcard/pattern-based searches using JSON_CONTAINS
+select * from dbo.test_json_index
+where json_contains(document, '2A94%', '$.somedata1', 1) = 1;
+go
+
+select * from dbo.test_json_index
+where json_contains(document, 100, '$.id') = 1
+
+select * from dbo.test_json_index
+where json_contains(document, 100, '$.somearray[*]') = 1
+
+-- doesn't use index on CTP 2.1
+select top(10) * from dbo.test_json_index
+where json_value(document, '$.datetime' returning datetime2) >= '2025-07-24';
+
+set static time on
+set statistics io on
+go
 
 select * from dbo.test_json_index where json_value(document, '$.id' returning int) = 100
 

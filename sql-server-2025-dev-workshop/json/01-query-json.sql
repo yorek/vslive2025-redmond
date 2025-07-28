@@ -17,7 +17,7 @@ go
 
 -- use Path expression to precisely point to elements in an array
 declare @j json
-select top (1) @j = json_data from dbo.users_json where id = 2
+select top (1) @j = json_data from dbo.users_json where id = 1
 select json_value(@j, '$.phoneNumbers[last].number') 
 go
 
@@ -27,6 +27,7 @@ go
 declare @j json
 select top (1) @j = json_data from dbo.users_json where id = 1
 select json_query(@j, '$.address') 
+go
 
 declare @j json
 select top (1) @j = json_data from dbo.users_json where id = 1
@@ -36,6 +37,14 @@ go
 /*
     Use Path Expressions
 */
+
+-- Null result as path is returning a list of numbers, not just one
+declare @j json
+select top (1) @j = json_data from dbo.users_json where id = 1
+select json_query(@j, '$.phoneNumbers[*].number') 
+go
+
+-- List of numbers in JSON *must* be wrapped into an array
 declare @j json
 select top (1) @j = json_data from dbo.users_json where id = 1
 select json_query(@j, '$.phoneNumbers[*].number' with array wrapper) 
@@ -90,6 +99,7 @@ from
         Age int '$.age',
         [State] nvarchar(50) '$.address.state'
     ) as t
+go
 
 -- Works on arrays too
 declare @j json
@@ -117,6 +127,21 @@ cross apply
     (
         [type] nvarchar(50),
         [number] nvarchar(50)
+    ) as p
+go
+
+-- A row may contain a document with an array of object
+-- Each extract object will be returned on its own line
+select
+    j.id,
+    p.*
+from
+    dbo.users_json j
+cross apply
+    openjson(j.json_data, '$') with
+    (
+        [firstName] nvarchar(50),
+        [lastName] nvarchar(50)
     ) as p
 
 -- Using multiple cross appy in sequence it is possible to
