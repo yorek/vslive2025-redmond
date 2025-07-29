@@ -24,28 +24,6 @@ select * from
 go
 
 /*
-	Best practice is to use the new .modify method. (Not working in CTP 2.1, but works in Azure SQL and will work in RC0)
-*/
-declare @json json = 
-'{
-  "firstName": "John",
-  "lastName": "Smith",
-  "children": []
-}';
-
-select * from
-( values  
-	('Update existing value',           @json.modify('$.firstName', 'Dave')),
-	('Insert scalar value',             @json.modify('$.isAlive', 'true')),
-	('Insert array',                    @json.modify('$.preferredColors', cast('["Blue", "Black"]' as json))), 
-	('Append to array',                 @json.modify('append $.children', 'Annette')), 
-	('Replace an array with a scalar',  @json.modify('$.children', 'Annette')), 
-	('Add an object',                   @json.modify('$.phoneNumbers', cast('{"type": "home","number": "212 555-1234"}' as json))), 
-	('Remove an object',                @json.modify('$.firstName', null))	
-) t([action], result)
-go
-
-/*
 	In-Place JSON modification
 */
 
@@ -57,8 +35,19 @@ select 42, json_data = '{"firstName": "Joe", "lastName": "Black"}';
 update 
 	dbo.users_json
 set
-	-- json_data = json_modify(json_data, '$.lastName', 'Green') -- OLD WAY
-	json_data.modify('$.lastName', 'Green')
+	json_data = json_modify(json_data, '$.lastName', 'Green') -- OLD WAY	
+output
+	inserted.*
+where 
+    id = 42;
+
+-- Best practice is to use the new .modify method as it does in-place update
+update 
+	dbo.users_json
+set	
+	json_data.modify('$.lastName', 'Yellow')
+output
+	inserted.*
 where 
     id = 42;
 

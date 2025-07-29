@@ -70,6 +70,11 @@ select top (1) @j = json_data from dbo.users_json where id = 1
 select json_query(@j, '$.phoneNumbers[last]') 
 go
 
+declare @j json
+select top (1) @j = json_data from dbo.users_json where id = 1
+select json_query(@j, '$.phoneNumbers[0,last]' with array wrapper) 
+go
+
 /*
     Extract all the key-value pairs
 */
