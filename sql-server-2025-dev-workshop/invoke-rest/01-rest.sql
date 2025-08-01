@@ -1,6 +1,10 @@
 use vslive2025_redmond
 go
 
+/*
+    Query the Open Trivia fee API
+*/
+
 declare @rv int;
 declare @response nvarchar(max);
 
@@ -9,9 +13,9 @@ exec @rv = sp_invoke_external_rest_endpoint
     @url = 'https://opentdb.com/api.php?amount=10',
     @response = @response output;
 
---select @response;
+select @response;
 
---select * from openjson(@response);
+select * from openjson(@response);
 
 select * from openjson(@response, '$.result.results')
 with (
@@ -24,7 +28,39 @@ with (
 );
 go
 
+/*
+    User mock REST API that allows POST too
+*/
 
+-- GET an existing element
+declare @rv int;
+declare @response nvarchar(max);
+
+exec @rv = sp_invoke_external_rest_endpoint 
+    @method = 'GET',
+    @url = 'https://jsonplaceholder.typicode.com/posts/1',
+    @response = @response output;
+
+select @response;
+go
+
+-- POST a new element 
+declare @rv int;
+declare @response nvarchar(max);
+
+declare @payload json = '{"title": "foo", "body": "bar", "userId": "42"}'
+
+exec @rv = sp_invoke_external_rest_endpoint 
+    @method = 'POST',
+    @url = 'https://jsonplaceholder.typicode.com/posts',
+    @response = @response output;
+
+select @response;
+go
+
+/*
+    REST + JSON are great together!
+*/
 declare @rv int;
 declare @response nvarchar(max);
 
@@ -33,7 +69,8 @@ exec @rv = sp_invoke_external_rest_endpoint
     @url = 'https://raw.githubusercontent.com/dataplat/dbatools/refs/heads/development/bin/dbatools-buildref-index.json',
     @response = @response output;
 
---select * from openjson(@response)
+select * from openjson(@response)
+
 with cte_sql_versions as
 (
 select 

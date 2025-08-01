@@ -47,12 +47,6 @@ go
 create json index ixj on dbo.test_json_index(document)
 go
 
--- View statistics properties for the primary key
-select * from sys.dm_db_stats_properties(OBJECT_ID('dbo.test_json_index'), 1)
-
--- View statistics histogram for the primary key  
-select * from sys.dm_db_stats_histogram(OBJECT_ID('dbo.test_json_index'), 1)
-
 update statistics test_json_index with rowcount = 10000000;
 go
 
