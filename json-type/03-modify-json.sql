@@ -52,7 +52,7 @@ output
 where 
     id = 42;
 
--- Add Phone Number (generates an error in CTP 2.1. Will be fixed in RC0)
+-- Add Phone Number (generates an error in RC0. Will be fixed in next update.)
 update 
 	dbo.users_json
 set
